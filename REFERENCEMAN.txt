@@ -1,0 +1,89 @@
+Project 3: Network Metrics
+REFERENCEMAN.txt
+
+Jeffrey Tamashiro
+ICS311 - Suthers
+12/15/2013
+-----------------------------------------------------------------------------------------------------
+
+Basic Algorithm Outlines and Complexity Analysis
+
+Reciprocity:
+
+initialize counter to 0
+For all Arcs a in G
+	for a.origin's adjacent Vertices v coming in
+		if v is equal to a.destination
+			increment counter
+return counter / total number of Arcs		
+			
+The worst case for this would be something like a complete graph, meaning the adjacency lists would contain
+Arcs connected to every other Vertex, so each inner loop would be bound by |V|. 
+
+Since the outer loop runs over all the Arcs (|E|), the run time complexity is O(EV).	
+	
+Degree Correlation:
+
+initialize s1, s2, s3, sE to 0
+For all Vertices v in G
+	get total in+out degree for v and add respective power to s1,s2,s3
+For all Arcs a in G
+	get total in+out degree for a.origin and a.destination and add 2 * product
+	to sE
+return (s1*sE - s2*s2)/(s1*s3 - s2*s2)
+
+This is pretty clear because in each loop the operations can be done in 
+constant time, so the first loop is |V| and second loop is |A| and
+the runtime is O(V + E)
+	
+Clustering Coefficient:
+
+initialize p(paths) and t(triangles) to 0
+For all Vertices v in G
+	For each unique pair* of adjacent vertices to v
+		increment p
+		if edge exists between pair, increment t
+return t / p
+
+Theoretically, if you had a matrix implementation so the edge checking 
+operation could run in constant time, using aggregate analysis this would 
+be O(E^2) because at very most you would need to check each Arc against 
+every other Arc.  Although there must be an easier way to do this because 
+once you find one triangle you can count it as three and move on.
+
+Anyway, I had a lot of trouble with this because of the Directed-Undirected 
+distinction.  I ended up checking three cases for each vertex:
+adjacent vertices coming in, adjacent vertices going out, and adjacencies
+coming in and going out.  This meant double loops for each and counting twice.
+Also my check if arcs exists based on 2 vertices needed to check through one
+of the vertices adjacency list.  I don't think we learned a way to think 
+about this particular situation but I can estimate that it would be O(E^2V).
+
+Mean Geodesic Distance and Diameter:
+
+I basically tried an Iterated Djkstra using an object marker to store 
+distances.  So the outermost loop runs V with another inner loop running V
+every time and inside of that running on adjacent vertices with heap 
+maintenance happening.
+
+Looking at my notes I now realize even ideally, this is O(V*lg(V)(V+E)) which
+is pretty terrible and it makes sense why this was the part that failed on
+larger data sets.  Another possible oversight was using Java's built in 
+priority Queue class, which I had to manually update after each relax.  So if
+it's performance is worse that Binary Heaps it could be even worse.  If I was 
+going to revise this code, I would start with this.
+
+Conclusions:
+
+During Project 2 I was struggling to finish my strongly connected components and they crashed for all but the smallest data sets.  
+For this Project 3 I was really excited to go back and fix that part and now it runs much better.  I think the same could be said
+for my Clustering and Geodesic implementations, I would want to come back to these and try to get them to handle these larger data
+sets better.  I think this is because at first I am just focused on getting them to work the way they are supposed to and efficiency
+is the last think on my mind.  However assignments like this are slowly making me realize that a good programmer can design from the
+ground up with these kind of things in mind.
+
+I actually wish this class involved much more of these kinds of practical application because I'm really block-headed when it comes to
+reading about the text book and thinking about the theoretical analysis.  But when I see my code break into stack overflows or slow down
+to a crawl, it makes me want to understand a lot of the things we covered in class a whole lot more.   
+
+	
